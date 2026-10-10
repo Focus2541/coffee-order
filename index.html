@@ -7,10 +7,12 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://static.line-scdn.net/liff/edge/2/sdk.js" charset="utf-8"></script>
-<script>
-  /* ===== ตั้งค่า: แก้ 2 บรรทัดนี้ ===== */
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
   const LIFF_ID = '2011930869-xoZ90jal';
   const API_URL = 'https://script.google.com/macros/s/AKfycbwrf6PJOWHCYqVL8GZtdgrSy2y1vMalw3jejTyMa_swh_0MDYTaBu3QlIeA8VGVpxD_6A/exec';
+  const LIFF_ID = 'ใส่ LIFF ID ตรงนี้';
+  const API_URL = 'ใส่ลิงก์เว็บแอปที่ลงท้ายด้วย /exec ตรงนี้';
   /* ================================= */
 </script>
 <style>
@@ -31,6 +33,23 @@
   .item .name { flex: 1; font-size: 16px; font-weight: 500; }
   .item .price { font-size: 15px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
   .item .plus { width: 34px; height: 34px; border-radius: 50%; background: var(--espresso); color: #fff; display: grid; place-items: center; font-size: 20px; line-height: 1; }
+  .item .pcol { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; min-width: 52px; }
+  .item .pcol .price { color: var(--ink); font-weight: 600; font-size: 16px; }
+  .chg { font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .chg.up { color: #1F7A4C; } .chg.down { color: #B3261E; } .chg.flat { color: var(--ink-2); }
+  .spark { display: block; flex: 0 0 auto; }
+  .mkt { display: flex; align-items: center; gap: 12px; background: #2B1F1A; color: #F3EEE9; border-radius: 14px; padding: 12px 14px; margin-top: 12px; }
+  .mkt .t { flex: 1; font-size: 13px; line-height: 1.45; }
+  .mkt .t b { display: block; font-size: 14px; color: #E7B677; }
+  .mkt .cd { text-align: right; font-size: 11px; color: #CDBFB5; }
+  .mkt .cd strong { display: block; font-size: 20px; color: #fff; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+  .movers { display: flex; gap: 8px; margin-top: 8px; flex-wrap: wrap; }
+  .movers span { background: var(--card); border: 1px solid var(--line); border-radius: 99px; padding: 4px 10px; font-size: 12px; }
+  .bigchart { background: var(--bg); border-radius: 12px; padding: 10px 12px; margin: -6px 0 4px; }
+  .bigchart small { display: flex; justify-content: space-between; color: var(--ink-2); font-size: 12px; margin-top: 4px; }
+  .flash { animation: flash 1.2s ease-out 1; }
+  @keyframes flash { from { background: #FBEBD3; } }
+  @media (prefers-reduced-motion: reduce) { .flash { animation: none; } }
   .item .incart { background: var(--brew-bg); color: var(--brew); border-radius: 99px; font-size: 12px; font-weight: 600; padding: 2px 8px; }
 
   .bar { position: fixed; left: 0; right: 0; bottom: 0; padding: 12px 16px calc(12px + env(safe-area-inset-bottom)); background: linear-gradient(transparent, var(--bg) 30%); }
@@ -81,6 +100,33 @@
   .done .row { display: flex; gap: 22px; margin-top: 12px; }
   .done .k { font-size: 12px; opacity: .8; }
   .done .v { font-size: 28px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  [hidden] { display: none !important; }
+  .stampcard { display: flex; align-items: center; gap: 12px; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; margin-top: 10px; }
+  .stampcard .t { flex: 1; font-size: 13px; color: var(--ink-2); }
+  .stampcard .t b { display: block; color: var(--ink); font-size: 15px; }
+  .dots { display: flex; flex-wrap: wrap; gap: 4px; max-width: 142px; justify-content: flex-end; }
+  .dots i { width: 10px; height: 10px; border-radius: 50%; border: 1.5px solid var(--brew); }
+  .dots i.on { background: var(--brew); }
+  .stampcard.ready { background: var(--brew-bg); border-color: var(--brew); }
+  .mine { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+  .mine button { border: 1px solid var(--espresso); background: var(--card); color: var(--espresso); border-radius: 10px; padding: 8px 12px; font-size: 14px; font-weight: 600; }
+  .freebox { display: flex; gap: 10px; align-items: center; background: var(--brew-bg); color: #6B3F07; border-radius: 12px; padding: 10px 12px; margin-top: 12px; font-size: 14px; }
+  .freebox input { width: 20px; height: 20px; accent-color: var(--brew); }
+  .privacy { color: var(--ink-2); font-size: 12px; margin: 26px 2px 0; line-height: 1.5; }
+  .pay { text-align: center; }
+  .pay .amt { font-size: 44px; font-weight: 700; font-variant-numeric: tabular-nums; margin: 4px 0; }
+  .pay .pp { display: inline-block; background: #113566; color: #fff; font-weight: 700; border-radius: 8px; padding: 3px 12px; font-size: 13px; }
+  .pay .code { width: min(72vw, 280px); margin: 12px auto 6px; background: #fff; padding: 8px; border-radius: 12px; border: 1px solid var(--line); }
+  .pay .code svg { width: 100%; height: auto; display: block; }
+  .pay .acc { color: var(--ink-2); font-size: 14px; }
+  .pay .timer { display: inline-block; margin-top: 10px; background: var(--card); border: 1px solid var(--line); border-radius: 99px; padding: 4px 12px; font-size: 13px; font-variant-numeric: tabular-nums; }
+  .pay .timer.low { color: var(--danger); border-color: var(--danger); }
+  .steps { text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px 12px 34px; margin: 14px 0 0; font-size: 14px; color: var(--ink-2); }
+  .steps li { margin: 4px 0; }
+  .upload { display: block; width: 100%; margin-top: 16px; border: 0; border-radius: 14px; padding: 15px; background: var(--espresso); color: #fff; font-size: 17px; font-weight: 600; text-align: center; cursor: pointer; }
+  .upload input { display: none; }
+  .secondary { width: 100%; margin-top: 8px; border: 1px solid var(--espresso); border-radius: 14px; padding: 13px; background: var(--card); color: var(--espresso); font-size: 16px; font-weight: 600; }
+  .checking { border-radius: 18px; padding: 20px; background: #E3E8EF; color: #2C3A4F; margin-top: 18px; }
   @media (prefers-reduced-motion: no-preference) { .sheet { animation: up .22s ease-out; } @keyframes up { from { transform: translateY(30px); opacity: .6; } } }
 </style>
 </head>
@@ -93,8 +139,13 @@
   <div class="sheet">
     <h3 id="itemName"></h3>
     <p class="p" id="itemPrice"></p>
+    <div id="itemChart"></div>
     <div class="label">ความหวาน</div>
     <div class="chips" id="sweetChips"></div>
+    <div id="iceWrap">
+      <div class="label">น้ำแข็ง</div>
+      <div class="chips" id="iceChips"></div>
+    </div>
     <div class="label">จำนวน</div>
     <div class="stepper"><button type="button" id="qMinus" aria-label="ลดจำนวน">−</button><b id="qVal">1</b><button type="button" id="qPlus" aria-label="เพิ่มจำนวน">+</button></div>
     <button class="primary" type="button" id="addBtn"></button>
@@ -107,9 +158,14 @@
     <h3 id="cartTitle">ตะกร้าของคุณ</h3>
     <div id="cartLines"></div>
     <div class="total"><span>ยอดรวม</span><span id="sumTotal"></span></div>
+    <div id="dayWrap" hidden>
+      <div class="label">รับวันไหน</div>
+      <div class="chips" id="dayChips"></div>
+    </div>
     <div class="label">จะมารับเมื่อไหร่</div>
     <div class="chips" id="pickChips"></div>
     <div class="timein" id="timeIn"><label>เลือกเวลา <input type="time" id="pickTime"></label></div>
+    <label class="freebox" id="freeBox" hidden><input type="checkbox" id="useFree"><span id="freeText"></span></label>
     <div class="pay-note" id="payNote"></div>
     <div class="err" id="err" role="alert"></div>
     <button class="primary" type="button" id="submitBtn">ยืนยันสั่ง</button>
@@ -118,15 +174,42 @@
 </div>
 
 <script>
-  const SWEET = ['หวานปกติ', 'หวาน 50%', 'หวาน 25%', 'ไม่หวาน'];
-  const DEMO = new URLSearchParams(location.search).has('demo');
+  // ข้อความแก้ได้ในแท็บ "ข้อความ" ของชีต ค่าด้านล่างใช้เมื่อชีตยังไม่มีข้อความนั้น
+  const DEFAULT_TEXTS = {
+    hello: 'สวัสดี {name}',
+    subtitle: 'สั่งล่วงหน้า เลือกเวลามารับ แล้วแวะมาหยิบได้เลย',
+    sweet: 'หวานปกติ, หวาน 50%, หวาน 25%, ไม่หวาน',
+    ice: 'ใส่น้ำแข็งปกติ, แยกน้ำแข็ง',
+    market: 'เมนูที่ขายช้าลดราคาทุกต้นชั่วโมง ไม่แพงกว่าราคาปกติ',
+    payNote: 'มารับที่ {place} · ระบบจะแจ้งเลขคิวในแชท และแจ้งอีกครั้งเมื่อเครื่องดื่มพร้อม',
+    closedNote: 'ตอนนี้ยังสั่งไม่ได้ ดูเมนูไว้ก่อนได้นะ',
+    confirm: 'ยืนยันสั่ง',
+    payTitle: 'สแกนจ่ายด้วยแอปธนาคาร',
+    payHelp: 'จ่ายแล้วแนบสลิป ระบบตรวจให้เอง คิวเริ่มทันทีที่ยอดเข้า',
+    stamp: 'ทุกแก้วได้ 1 แต้ม ครบ {goal} แต้มแลกฟรี 1 แก้ว',
+    privacy: 'ร้านเก็บชื่อไลน์และประวัติการสั่งไว้ทำคิวและสะสมแต้มเท่านั้น พิมพ์ "ลบข้อมูลของฉัน" ในแชทเพื่อลบได้ทุกเมื่อ',
+  };
+  let texts = {};
+  function T(key, vars) {
+    let t = texts[key] || DEFAULT_TEXTS[key] || '';
+    Object.keys(vars || {}).forEach((k) => (t = t.split('{' + k + '}').join(vars[k])));
+    return t;
+  }
+  const opts = (key) => T(key).split(/\s*,\s*/).filter(Boolean);
+  const isCold = (m) => !/ร้อน/.test(m.name + ' ' + m.cat);
+  const Q = new URLSearchParams(location.search);
+  const DEMO = Q.has('demo');
   const $ = (id) => document.getElementById(id);
   const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const baht = (n) => '฿' + Number(n).toLocaleString('th-TH');
-  let menu = [], shop = '', cart = [], pick = null, profileName = '', store = {}, skew = 0, pickup = 'asap';
+  let menu = [], shop = '', cart = [], pick = null, profileName = '', store = {}, skew = 0, pickup = 'asap', market = { on: false };
+  let day = 0, me = null, payCfg = { on: false }, stampGoal = 0, useFree = false, current = null;
   const MIN = 60000;
   const hm = (ms) => new Intl.DateTimeFormat('th-TH', { hour: '2-digit', minute: '2-digit', hour12: false, timeZone: 'Asia/Bangkok' }).format(new Date(ms));
   const nowMs = () => Date.now() + skew;
+  const tmr = () => store.tomorrow || { accepting: false };
+  const canOrder = () => store.accepting || tmr().accepting;
+  const dayInfo = () => (day === 1 ? Object.assign({ open: tmr().open, close: tmr().close }, tmr()) : store);
 
   function fail(msg) {
     $('app').innerHTML = '<div class="center"><div><p style="font-size:17px;color:var(--ink)">' + esc(msg) + '</p><p>ลองปิดหน้านี้แล้วเปิดใหม่จากไลน์ของร้าน</p></div></div>';
@@ -134,69 +217,187 @@
   }
 
   async function api(body) {
+    if (!DEMO) body.idToken = liff.getIDToken();
     const res = await fetch(API_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(body) });
     const j = await res.json();
-    if (!j.ok) throw new Error(j.error || 'เกิดข้อผิดพลาด');
+    if (!j.ok) { const err = new Error(j.error || 'เกิดข้อผิดพลาด'); err.code = j.code || ''; throw err; }
     return j.data;
+  }
+
+  /* ---------- โหมดตัวอย่าง (?demo=1) ไม่ต้องต่อไลน์ ---------- */
+  const DEMO_PAYLOAD = '00020101021229370016A000000677010111011300668123456785802TH53037645406105.006304F334';
+  function demoSetup() {
+    shop = 'ร้านกาแฟของฉัน'; profileName = 'คุณแพร';
+    const t = Date.now();
+    store = { accepting: true, reason: '', beforeOpen: false, open: '07:00', close: '17:00', earliestAt: t + 6 * MIN, closeAt: t + 300 * MIN, now: t,
+      notice: 'วันนี้มีเมนูใหม่ โกโก้มินต์ 10 แก้วแรกลด 10 บาท', place: 'หน้าตลาดแม่แตง ฝั่งร้านขายยา', map: 'https://www.google.com/maps?q=18.9123,98.9456',
+      tomorrow: { accepting: true, open: '07:00', close: '17:00', earliestAt: new Date(new Date(t + 864e5).setHours(7, 2, 0, 0)).getTime(), closeAt: new Date(new Date(t + 864e5).setHours(17, 0, 0, 0)).getTime() } };
+    if (Q.has('closed')) Object.assign(store, { accepting: false, reason: 'วันนี้ปิดรับออเดอร์แล้ว พรุ่งนี้เปิด 07:00 น.', notice: '' });
+    const H = { M01: [45,44,43,43,42], M02: [50,50,49,50,50], M03: [50,49,48,49,50], M04: [55,55,54,53,54], M06: [60,59,58,57,56], M08: [45,45,44,45,45], M09: [55,54,53,52,52] };
+    menu = [['M01','อเมริกาโน่ร้อน','กาแฟร้อน',45],['M02','ลาเต้ร้อน','กาแฟร้อน',50],['M03','อเมริกาโน่เย็น','กาแฟเย็น',50],['M04','ลาเต้เย็น','กาแฟเย็น',55],['M06','มอคค่าเย็น','กาแฟเย็น',60],['M08','ชาไทยเย็น','ไม่ใช่กาแฟ',45],['M09','ชาเขียวเย็น','ไม่ใช่กาแฟ',55]]
+      .map(([id,name,cat,base]) => { const h = H[id]; return { id, name, cat, base, price: h[h.length - 1], chg: h[h.length - 1] - h[h.length - 2], hist: h }; });
+    market = { on: true, live: true, cap: true, nextAt: Math.ceil((t + 1) / (60 * MIN)) * 60 * MIN };
+    payCfg = { on: true, name: 'สมชาย ใจดี', timeout: 10 };
+    stampGoal = 10;
+    me = { stamps: { goal: 10, have: Q.has('free') ? 11 : 7, canRedeem: Q.has('free') }, orders: [] };
   }
 
   async function start() {
     try {
-      if (DEMO) {
-        shop = 'ร้านกาแฟของฉัน'; profileName = 'คุณแพร';
-        const t = Date.now();
-        store = { accepting: true, reason: '', beforeOpen: false, open: '07:00', close: '17:00', earliestAt: t + 6 * MIN, closeAt: t + 300 * MIN, now: t,
-          notice: 'วันนี้มีเมนูใหม่ โกโก้มินต์ 10 แก้วแรกลด 10 บาท', place: 'หน้าตลาดแม่แตง ฝั่งร้านขายยา', map: 'https://www.google.com/maps?q=18.9123,98.9456' };
-        if (new URLSearchParams(location.search).has('closed')) Object.assign(store, { accepting: false, reason: 'วันนี้ปิดร้าน', notice: 'วันนี้ปิดร้าน 1 วัน ไปซ่อมรถ พรุ่งนี้เจอกันที่เดิมนะ' });
-        menu = [['M01','อเมริกาโน่ร้อน','กาแฟร้อน',45],['M02','ลาเต้ร้อน','กาแฟร้อน',50],['M03','อเมริกาโน่เย็น','กาแฟเย็น',50],['M04','ลาเต้เย็น','กาแฟเย็น',55],['M06','มอคค่าเย็น','กาแฟเย็น',60],['M08','ชาไทยเย็น','ไม่ใช่กาแฟ',45],['M09','ชาเขียวเย็น','ไม่ใช่กาแฟ',55]].map(([id,name,cat,price]) => ({ id, name, cat, price }));
-        return renderMenu();
-      }
+      if (DEMO) { demoSetup(); day = store.accepting ? 0 : 1; renderMenu(); tickTimer(); if (Q.has('pay')) demoPay(); return; }
       if (LIFF_ID.indexOf('ใส่') === 0 || API_URL.indexOf('ใส่') === 0) return fail('ยังไม่ได้ใส่ LIFF ID และลิงก์เว็บแอปในไฟล์นี้');
       await liff.init({ liffId: LIFF_ID });
       if (!liff.isLoggedIn()) return liff.login({ redirectUri: location.href });
       try { profileName = (await liff.getProfile()).displayName; } catch (e) {}
-      const data = await (await fetch(API_URL + '?api=menu')).json();
-      if (!data.ok) throw new Error(data.error);
-      shop = data.data.shopName; menu = data.data.items; store = data.data.store; skew = store.now - Date.now();
+      await loadMenu();
+      day = store.accepting ? 0 : 1;
+      const payId = Q.get('pay');
+      if (payId) return openOrder(payId);
       renderMenu();
+      tickTimer();
+      loadMe();
     } catch (e) {
       fail('เปิดเมนูไม่ได้: ' + (e && e.message ? e.message : e));
     }
   }
 
+  async function loadMenu() {
+    const data = await (await fetch(API_URL + '?api=menu')).json();
+    if (!data.ok) throw new Error(data.error);
+    shop = data.data.shopName; menu = data.data.items; store = data.data.store; skew = store.now - Date.now();
+    market = data.data.market || { on: false };
+    texts = data.data.texts || {};
+    payCfg = data.data.pay || { on: false };
+    stampGoal = data.data.stampGoal || 0;
+  }
+
+  async function loadMe() {
+    try { me = await api({ action: 'me' }); if (!current) renderMenu(); } catch (e) {}
+  }
+
+  /** ใช้ราคาล่าสุดกับของในตะกร้า คืนชื่อเมนูที่ราคาเปลี่ยน */
+  function repriceCart() {
+    const moved = [];
+    cart = cart.filter((l) => {
+      const m = menu.find((x) => x.id === l.id);
+      if (!m) { moved.push(l.name + ' หมดแล้ว'); return false; }
+      if (m.price !== l.price) { moved.push(l.name + ' ' + baht(l.price) + ' → ' + baht(m.price)); l.price = m.price; }
+      return true;
+    });
+    return moved;
+  }
+
+  function chgTag(c) {
+    if (!market.on) return '';
+    if (!c) return '<span class="chg flat">คงที่</span>';
+    return '<span class="chg ' + (c > 0 ? 'up">▲' : 'down">▼') + Math.abs(c) + '</span>';
+  }
+
+  /** กราฟเส้นราคาวันนี้ */
+  function spark(hist, w, h, strong) {
+    if (!market.on || !hist || hist.length < 2) return '';
+    const lo = Math.min(...hist), hi = Math.max(...hist), span = Math.max(hi - lo, 2);
+    const x = (i) => 2 + i * (w - 4) / (hist.length - 1);
+    const y = (v) => h - 3 - (v - lo) * (h - 6) / span;
+    const pts = hist.map((v, i) => x(i).toFixed(1) + ',' + y(v).toFixed(1)).join(' ');
+    const up = hist[hist.length - 1] >= hist[0];
+    const col = up ? '#1F7A4C' : '#B3261E';
+    const last = hist.length - 1;
+    return '<svg class="spark" width="' + w + '" height="' + h + '" viewBox="0 0 ' + w + ' ' + h + '" aria-hidden="true">' +
+      (strong ? '<polygon points="' + x(0) + ',' + h + ' ' + pts + ' ' + x(last) + ',' + h + '" fill="' + col + '" opacity=".12"/>' : '') +
+      '<polyline points="' + pts + '" fill="none" stroke="' + col + '" stroke-width="' + (strong ? 2.5 : 1.8) + '" stroke-linejoin="round" stroke-linecap="round"/>' +
+      '<circle cx="' + x(last) + '" cy="' + y(hist[last]) + '" r="' + (strong ? 3.5 : 2.5) + '" fill="' + col + '"/></svg>';
+  }
+
+  function marketBar() {
+    if (!market.on) return '';
+    const ups = menu.filter((m) => m.chg > 0).sort((a, b) => b.chg - a.chg);
+    const downs = menu.filter((m) => m.chg < 0).sort((a, b) => a.chg - b.chg);
+    return '<div class="mkt"><div class="t"><b>ราคาตลาด</b>' + esc(market.cap ? T('market') : 'ขายดีราคาขึ้น ขายช้าราคาลง ขยับทุกต้นชั่วโมง') + '</div>' +
+      '<div class="cd">' + (market.live ? 'ราคาถัดไปใน<strong id="cd">--:--</strong>' : 'ตลาดปิด<strong>ราคาล่าสุด</strong>') + '</div></div>' +
+      (ups.length || downs.length ? '<div class="movers">' +
+        (market.cap ? (function () { const d = menu.filter((m) => m.price < m.base).sort((a, b) => (b.base - b.price) - (a.base - a.price))[0];
+          return d ? '<span>คุ้มสุดตอนนี้ ' + esc(d.name) + ' <b class="chg up">ถูกลง ' + baht(d.base - d.price) + '</b></span>' : ''; })()
+          : (ups[0] ? '<span>ขึ้นแรงสุด ' + esc(ups[0].name) + ' <b class="chg up">▲' + ups[0].chg + '</b></span>' : '')) +
+        (downs[0] ? '<span>ลดแรงสุด ' + esc(downs[0].name) + ' <b class="chg down">▼' + Math.abs(downs[0].chg) + '</b></span>' : '') + '</div>' : '');
+  }
+
+  let refreshing = false;
+  function tickTimer() {
+    clearInterval(tickTimer.id);
+    tickTimer.id = setInterval(async () => {
+      const el = $('cd');
+      if (!market.on || !market.live || !market.nextAt || current) return;
+      const left = market.nextAt - (Date.now() + skew);
+      if (el) el.textContent = left > 0 ? String(Math.floor(left / 60000)).padStart(2, '0') + ':' + String(Math.floor(left / 1000) % 60).padStart(2, '0') : '00:00';
+      if (left <= -4000 && !refreshing && !DEMO) {
+        refreshing = true;
+        try {
+          await loadMenu();
+          const moved = repriceCart();
+          renderMenu();
+          document.querySelectorAll('.item .pcol').forEach((p) => p.classList.add('flash'));
+          if ($('cartScrim').classList.contains('open')) { renderCart(); if (moved.length) $('err').textContent = 'ราคาอัปเดตแล้ว: ' + moved.join(', '); }
+        } catch (e) {}
+        refreshing = false;
+      }
+    }, 1000);
+  }
+
+  function stampCard() {
+    if (!stampGoal || !me || !me.stamps || !me.stamps.goal) return '';
+    const s = me.stamps, n = Math.min(s.have, s.goal);
+    return '<div class="stampcard' + (s.canRedeem ? ' ready' : '') + '"><div class="t"><b>' +
+      (s.canRedeem ? 'แต้มครบแล้ว ใช้แลกแก้วฟรีได้ในตะกร้า' : 'สะสมแต้ม ' + s.have + '/' + s.goal) + '</b>' + esc(T('stamp', { goal: s.goal })) + '</div>' +
+      '<div class="dots" aria-hidden="true">' + Array.from({ length: s.goal }, (_, i) => '<i class="' + (i < n ? 'on' : '') + '"></i>').join('') + '</div></div>';
+  }
+
+  function myOrders() {
+    const list = (me && me.orders) || [];
+    if (!list.length) return '';
+    const label = (o) => o.status === 'รอชำระ' ? (o.payState === 'รอโอน' ? 'ยังไม่จ่าย' : 'รอร้านตรวจยอด') : o.status === 'เสร็จแล้ว' ? 'พร้อมรับ' + (o.slot !== '' ? ' ช่อง ' + o.slot : '') : o.status;
+    return '<div class="mine">' + list.map((o) => '<button type="button" data-order="' + esc(o.id) + '">' + esc(o.queue) + ' · ' + esc(label(o)) + '</button>').join('') + '</div>';
+  }
+
   function renderMenu() {
+    current = null;
     document.title = shop;
     const cats = [...new Set(menu.map((m) => m.cat))];
     const inCart = (id) => cart.filter((l) => l.id === id).reduce((s, l) => s + l.qty, 0);
     $('app').innerHTML = '<div class="wrap">' +
-      (profileName ? '<p class="hello">สวัสดี ' + esc(profileName) + '</p>' : '') +
-      '<h1>' + esc(shop) + '</h1>' + storeHead() +
+      (profileName ? '<p class="hello">' + esc(T('hello', { name: profileName })) + '</p>' : '') +
+      '<h1>' + esc(shop) + '</h1>' + storeHead() + myOrders() + stampCard() + marketBar() +
       '<nav class="tabs" aria-label="หมวดเมนู">' + cats.map((c, i) => '<button class="tab' + (i ? '' : ' on') + '" type="button" data-cat="' + i + '">' + esc(c) + '</button>').join('') + '</nav>' +
       (menu.length ? cats.map((c, i) => '<h2 id="cat' + i + '">' + esc(c) + '</h2>' + menu.filter((m) => m.cat === c).map((m) => {
         const n = inCart(m.id);
         return '<button class="item" type="button" data-id="' + esc(m.id) + '"><span class="name">' + esc(m.name) + '</span>' +
           (n ? '<span class="incart">' + n + ' ในตะกร้า</span>' : '') +
-          '<span class="price">' + baht(m.price) + '</span><span class="plus" aria-hidden="true">+</span></button>';
-      }).join('')).join('') : '<p class="sub">วันนี้ยังไม่มีเมนูเปิดขาย</p>') + '</div>';
+          spark(m.hist, 54, 24) +
+          '<span class="pcol"><span class="price">' + baht(m.price) + '</span>' + chgTag(m.chg) + '</span>' +
+          '<span class="plus" aria-hidden="true">+</span></button>';
+      }).join('')).join('') : '<p class="sub">วันนี้ยังไม่มีเมนูเปิดขาย</p>') +
+      '<p class="privacy">' + esc(T('privacy')) + '</p></div>';
     renderBar();
   }
 
   function storeHead() {
     const st = store.accepting
       ? '<div class="status">' + (store.beforeOpen ? 'ยังไม่เปิด สั่งล่วงหน้าได้ เปิด ' + esc(store.open) + ' น.' : 'เปิดรับออเดอร์ถึง ' + esc(store.close) + ' น.') + '</div>' +
-        '<p class="sub">สั่งล่วงหน้า เลือกเวลามารับ แล้วแวะมาหยิบได้เลย</p>'
+        '<p class="sub">' + esc(T('subtitle')) + '</p>'
       : '<div class="status off">' + esc(store.reason) + '</div>';
     return st +
       (store.notice ? '<div class="notice"><b>ประกาศ</b>' + esc(store.notice) + '</div>' : '') +
       (store.place || store.map ? '<div class="place"><div class="t"><small>วันนี้จอดที่</small>' + esc(store.place || 'ดูตำแหน่งในแผนที่') + '</div>' +
         (store.map ? '<a href="' + esc(store.map) + '" target="_blank" rel="noopener" data-map>แผนที่</a>' : '') + '</div>' : '') +
-      (store.accepting ? '' : '<div class="closed">ตอนนี้ยังสั่งไม่ได้ ดูเมนูไว้ก่อนได้นะ</div>');
+      (store.accepting ? '' : tmr().accepting
+        ? '<div class="notice"><b>สั่งล่วงหน้าได้</b>สั่งไว้รับพรุ่งนี้ได้เลย ร้านเปิด ' + esc(tmr().open) + ' น.</div>'
+        : '<div class="closed">' + esc(T('closedNote')) + '</div>');
   }
 
   function renderBar() {
     const cups = cart.reduce((s, l) => s + l.qty, 0);
     const total = cart.reduce((s, l) => s + l.qty * l.price, 0);
-    $('bar').hidden = !cups;
+    $('bar').hidden = !cups || !!current;
     $('cartCount').textContent = 'ดูตะกร้า · ' + cups + ' แก้ว';
     $('cartTotal').textContent = baht(total);
   }
@@ -211,6 +412,8 @@
   $('app').addEventListener('click', (e) => {
     const map = e.target.closest('a[data-map]');
     if (map && !DEMO && window.liff && liff.isInClient()) { e.preventDefault(); liff.openWindow({ url: map.href, external: true }); return; }
+    const mine = e.target.closest('[data-order]');
+    if (mine) return openOrder(mine.dataset.order);
     const tab = e.target.closest('.tab');
     if (tab) {
       document.querySelectorAll('.tab').forEach((t) => t.classList.toggle('on', t === tab));
@@ -220,24 +423,32 @@
     const item = e.target.closest('.item');
     if (!item) return;
     const m = menu.find((x) => x.id === item.dataset.id);
-    pick = { m, sweet: SWEET[0], qty: 1 };
+    pick = { m, sweet: opts('sweet')[0] || '', ice: opts('ice')[0] || '', qty: 1 };
     $('itemName').textContent = m.name;
-    $('itemPrice').textContent = baht(m.price) + ' ต่อแก้ว';
+    $('itemPrice').innerHTML = baht(m.price) + ' ต่อแก้ว ' + (market.on && m.chg ? chgTag(m.chg) + ' <span style="font-size:13px">จากชั่วโมงก่อน</span>' : '') +
+      (market.on && market.cap && m.price < m.base ? '<br><span class="chg up" style="font-size:14px">ถูกกว่าราคาปกติ ' + baht(m.base - m.price) + '</span>' : '');
+    $('itemChart').innerHTML = market.on && m.hist && m.hist.length > 1
+      ? '<div class="bigchart">' + spark(m.hist, 300, 64, true).replace('class="spark"', 'class="spark" style="width:100%;height:64px" preserveAspectRatio="none"') +
+        '<small><span>ราคาวันนี้</span><span>ต่ำสุด ' + baht(Math.min(...m.hist)) + ' · สูงสุด ' + baht(Math.max(...m.hist)) + '</span></small></div>'
+      : '';
     renderPick();
     open('itemScrim');
   });
 
   function renderPick() {
-    $('sweetChips').innerHTML = SWEET.map((s) => '<button class="chip" type="button" aria-pressed="' + (s === pick.sweet) + '">' + s + '</button>').join('');
+    $('sweetChips').innerHTML = opts('sweet').map((s) => '<button class="chip" type="button" aria-pressed="' + (s === pick.sweet) + '">' + s + '</button>').join('');
+    $('iceWrap').hidden = !isCold(pick.m) || !opts('ice').length;
+    $('iceChips').innerHTML = opts('ice').map((s) => '<button class="chip" type="button" aria-pressed="' + (s === pick.ice) + '">' + s + '</button>').join('');
     $('qVal').textContent = pick.qty;
-    $('addBtn').disabled = !store.accepting;
-    $('addBtn').textContent = store.accepting ? 'ใส่ตะกร้า · ' + baht(pick.qty * pick.m.price) : store.reason;
+    $('addBtn').disabled = !canOrder();
+    $('addBtn').textContent = canOrder() ? 'ใส่ตะกร้า · ' + baht(pick.qty * pick.m.price) : store.reason;
   }
   $('sweetChips').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (c) { pick.sweet = c.textContent; renderPick(); } });
+  $('iceChips').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (c) { pick.ice = c.textContent; renderPick(); } });
   $('qMinus').onclick = () => { pick.qty = Math.max(1, pick.qty - 1); renderPick(); };
   $('qPlus').onclick = () => { pick.qty = Math.min(20, pick.qty + 1); renderPick(); };
   $('addBtn').onclick = () => {
-    const opt = pick.sweet;
+    const opt = [pick.sweet, isCold(pick.m) && pick.ice && pick.ice !== opts('ice')[0] ? pick.ice : ''].filter(Boolean).join(' · ');
     const found = cart.find((l) => l.id === pick.m.id && l.opt === opt);
     if (found) found.qty = Math.min(20, found.qty + pick.qty);
     else cart.push({ id: pick.m.id, name: pick.m.name, price: pick.m.price, opt, qty: pick.qty });
@@ -245,38 +456,68 @@
     renderMenu();
   };
 
+  const cartSum = () => cart.reduce((s, l) => s + l.qty * l.price, 0);
+  const freeValue = () => (useFree && cart.length ? Math.min(...cart.map((l) => l.price)) : 0);
+
   function renderCart() {
     $('cartLines').innerHTML = cart.map((l, i) =>
       '<div class="line"><span class="n">' + esc(l.name) + '<small>' + esc(l.opt) + '</small></span>' +
       '<span class="stepper"><button type="button" data-i="' + i + '" data-d="-1" aria-label="ลด">−</button><b>' + l.qty + '</b>' +
       '<button type="button" data-i="' + i + '" data-d="1" aria-label="เพิ่ม">+</button></span></div>').join('');
-    $('sumTotal').textContent = baht(cart.reduce((s, l) => s + l.qty * l.price, 0));
+    const canFree = !!(me && me.stamps && me.stamps.canRedeem);
+    $('freeBox').hidden = !canFree;
+    if (!canFree) useFree = false;
+    $('useFree').checked = useFree;
+    $('freeText').textContent = 'ใช้แต้มแลกแก้วฟรี' + (useFree ? ' (ลด ' + baht(freeValue()) + ')' : ' (แก้วที่ถูกที่สุด)');
+    $('sumTotal').textContent = baht(cartSum() - freeValue());
     $('submitBtn').disabled = false;
-    $('submitBtn').textContent = 'ยืนยันสั่ง';
+    $('submitBtn').textContent = T('confirm') + (payCfg.on && cartSum() - freeValue() > 0 ? ' แล้วจ่ายด้วย QR' : '');
+    renderDays();
     renderPickup();
   }
+  $('useFree').onchange = () => { useFree = $('useFree').checked; renderCart(); };
+
+  function renderDays() {
+    const both = store.accepting && tmr().accepting;
+    $('dayWrap').hidden = !tmr().accepting;
+    if (!store.accepting) day = 1;
+    if (!tmr().accepting) day = 0;
+    $('dayChips').innerHTML = [[0, 'วันนี้', store.accepting], [1, 'พรุ่งนี้', tmr().accepting]].filter((d) => d[2])
+      .map((d) => '<button class="chip" type="button" data-day="' + d[0] + '" aria-pressed="' + (day === d[0]) + '">' + d[1] + '</button>').join('') +
+      (both ? '' : '');
+  }
+  $('dayChips').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (c) { day = +c.dataset.day; pickup = 'asap'; $('pickTime').value = ''; renderCart(); } });
 
   function pickOptions() {
     const cups = cart.reduce((s, l) => s + l.qty, 0);
-    const earliest = Math.max(store.earliestAt, nowMs() + MIN) + Math.max(0, cups - 1) * 2 * MIN;
+    const d = dayInfo();
     const round5 = (ms) => Math.ceil(ms / (5 * MIN)) * 5 * MIN;
-    const opts = [{ v: 'asap', label: 'เร็วที่สุด ~' + hm(earliest) }];
-    [15, 30, 60].forEach((n) => {
-      const t = round5(Math.max(earliest, nowMs() + n * MIN));
-      if (t <= store.closeAt && t > earliest + 4 * MIN) opts.push({ v: hm(t), label: hm(t) + ' (' + (n < 60 ? 'อีก ' + n + ' นาที' : 'อีก 1 ชม.') + ')' });
-    });
-    opts.push({ v: 'custom', label: 'เลือกเวลาเอง' });
-    return { opts, earliest };
+    const list = [];
+    let earliest;
+    if (day === 1) {
+      earliest = d.earliestAt + Math.max(0, cups - 1) * 2 * MIN;
+      list.push({ v: 'asap', label: 'เปิดร้าน ~' + hm(earliest) });
+      [30, 60, 120].forEach((n) => { const t = round5(earliest + n * MIN); if (t <= d.closeAt) list.push({ v: hm(t), label: hm(t) }); });
+    } else {
+      earliest = Math.max(d.earliestAt, nowMs() + MIN) + Math.max(0, cups - 1) * 2 * MIN;
+      list.push({ v: 'asap', label: 'เร็วที่สุด ~' + hm(earliest) });
+      [15, 30, 60].forEach((n) => {
+        const t = round5(Math.max(earliest, nowMs() + n * MIN));
+        if (t <= d.closeAt && t > earliest + 4 * MIN) list.push({ v: hm(t), label: hm(t) + ' (' + (n < 60 ? 'อีก ' + n + ' นาที' : 'อีก 1 ชม.') + ')' });
+      });
+    }
+    list.push({ v: 'custom', label: 'เลือกเวลาเอง' });
+    return { opts: list, earliest };
   }
   function renderPickup() {
-    const { opts, earliest } = pickOptions();
-    if (pickup !== 'asap' && pickup !== 'custom' && !opts.some((o) => o.v === pickup)) pickup = 'asap';
-    $('pickChips').innerHTML = opts.map((o) => '<button class="chip" type="button" data-v="' + o.v + '" aria-pressed="' + (o.v === pickup) + '">' + o.label + '</button>').join('');
+    const { opts: list, earliest } = pickOptions();
+    if (pickup !== 'asap' && pickup !== 'custom' && !list.some((o) => o.v === pickup)) pickup = 'asap';
+    $('pickChips').innerHTML = list.map((o) => '<button class="chip" type="button" data-v="' + o.v + '" aria-pressed="' + (o.v === pickup) + '">' + o.label + '</button>').join('');
     $('timeIn').classList.toggle('on', pickup === 'custom');
     $('pickTime').min = hm(earliest);
-    $('pickTime').max = store.close;
+    $('pickTime').max = dayInfo().close;
     if (!$('pickTime').value) $('pickTime').value = hm(earliest);
-    $('payNote').textContent = 'มารับที่ ' + (store.place || 'รถกาแฟ') + ' · ระบบจะแจ้งเลขคิวในแชท และแจ้งอีกครั้งเมื่อเครื่องดื่มพร้อม';
+    $('payNote').textContent = (market.on ? 'ราคาล็อกตอนกดยืนยัน · ' : '') + (payCfg.on ? 'จ่ายด้วย QR พร้อมเพย์ภายใน ' + (payCfg.timeout || 10) + ' นาที · ' : '') + T('payNote', { place: store.place || 'รถกาแฟ' });
   }
   $('pickChips').addEventListener('click', (e) => { const c = e.target.closest('.chip'); if (c) { pickup = c.dataset.v; renderPickup(); } });
   $('cartBtn').onclick = () => { $('err').textContent = ''; renderCart(); open('cartScrim'); };
@@ -292,29 +533,36 @@
 
   $('submitBtn').onclick = async () => {
     if (!cart.length) { $('err').textContent = 'ตะกร้ายังว่าง เลือกเครื่องดื่มก่อน'; return; }
-    if (!store.accepting) { $('err').textContent = store.reason; return; }
+    if (!canOrder()) { $('err').textContent = store.reason; return; }
     let pk = pickup;
     if (pickup === 'custom') {
       pk = $('pickTime').value;
       if (!pk) { $('err').textContent = 'เลือกเวลาที่จะมารับก่อน'; return; }
-      if (pk > store.close) { $('err').textContent = 'ร้านรับออเดอร์ถึง ' + store.close + ' น.'; return; }
+      if (pk > dayInfo().close) { $('err').textContent = 'ร้านรับออเดอร์ถึง ' + dayInfo().close + ' น.'; return; }
     }
     $('submitBtn').disabled = true;
     $('submitBtn').textContent = 'กำลังส่งออเดอร์';
     $('err').textContent = '';
     try {
-      const payload = cart.map((l) => ({ id: l.id, qty: l.qty, opt: l.opt }));
+      const payload = cart.map((l) => ({ id: l.id, qty: l.qty, opt: l.opt, price: l.price }));
+      const total = cartSum() - freeValue();
       const r = DEMO
-        ? { orderId: '20261008-036', queue: 'A-036', pickup: pk === 'asap' || pk === 'custom' ? hm(pickOptions().earliest) : pk, adjusted: false, ordersAhead: 1, total: cart.reduce((s, l) => s + l.qty * l.price, 0), level: 'busy', place: store.place, map: store.map }
-        : await api({ action: 'order', idToken: liff.getIDToken(), cart: payload, pickup: pk });
+        ? { orderId: '20261010-036', queue: 'A-036', status: payCfg.on && total > 0 ? 'รอชำระ' : 'รอทำ', day: day,
+            pickup: pk === 'asap' || pk === 'custom' ? hm(pickOptions().earliest) : pk, adjusted: false, ordersAhead: 1, total: total, level: 'busy', place: store.place, map: store.map,
+            pay: { payload: DEMO_PAYLOAD, name: payCfg.name, amount: total, expiresAt: Date.now() + 10 * MIN, slip: true } }
+        : await api({ action: 'order', cart: payload, pickup: pk, day: day, useFree: useFree });
       close('cartScrim');
-      showDone(r);
-      if (!DEMO && liff.isInClient()) {
-        try { await liff.sendMessages([{ type: 'text', text: 'สั่งแล้ว #' + r.orderId }]); } catch (e) {}
-        setTimeout(() => liff.closeWindow(), 1800);
-      }
+      cart = []; useFree = false;
+      if (r.status === 'รอชำระ' && r.pay) showPay(r);
+      else finish(r);
     } catch (e) {
       const msg = e && e.message ? e.message : String(e);
+      if (e && e.code === 'PRICE_CHANGED') {
+        try { await loadMenu(); repriceCart(); renderMenu(); renderCart(); } catch (x) {}
+        $('err').textContent = 'ราคาเพิ่งเปลี่ยนตอนต้นชั่วโมง ยอดในตะกร้าอัปเดตแล้ว ตรวจแล้วกดยืนยันอีกครั้ง';
+        return;
+      }
+      if (e && String(e.code).indexOf('UNPAID:') === 0) { close('cartScrim'); return openOrder(e.code.slice(7)); }
       $('err').textContent = 'สั่งไม่สำเร็จ: ' + msg;
       $('submitBtn').disabled = false;
       $('submitBtn').textContent = 'ลองอีกครั้ง';
@@ -322,20 +570,155 @@
     }
   };
 
+  /* ---------- จ่ายเงิน ---------- */
+  async function openOrder(id) {
+    $('app').innerHTML = '<div class="center">กำลังเปิดออเดอร์</div>';
+    $('bar').hidden = true;
+    try {
+      const o = await api({ action: 'status', orderId: id });
+      if (o.status === 'รอชำระ' && o.payState === 'รอโอน' && o.pay) return showPay(o);
+      if (o.status === 'รอชำระ') return showChecking(o);
+      if (o.status === 'ยกเลิก') { renderMenu(); return; }
+      showDone(o);
+    } catch (e) {
+      renderMenu();
+    }
+  }
+
+  function showPay(o) {
+    current = o;
+    $('bar').hidden = true;
+    const p = o.pay;
+    let svg = '';
+    try { const qr = qrcode(0, 'M'); qr.addData(p.payload); qr.make(); svg = qr.createSvgTag({ cellSize: 6, margin: 3, scalable: true, alt: 'QR พร้อมเพย์ ' + o.total + ' บาท' }); }
+    catch (e) { svg = '<p>สร้าง QR ไม่ได้ ลองเปิดหน้านี้ใหม่</p>'; }
+    $('app').innerHTML = '<div class="wrap pay"><h1>' + esc(T('payTitle')) + '</h1>' +
+      '<p class="sub">คิว ' + esc(o.queue) + (o.day === 1 ? ' · รับพรุ่งนี้ ' : ' · รับ ') + esc(o.pickup) + ' น.</p>' +
+      '<span class="pp">PromptPay พร้อมเพย์</span>' +
+      '<div class="code">' + svg + '</div>' +
+      '<div class="amt">' + baht(o.total) + '</div>' +
+      (p.name ? '<div class="acc">ชื่อบัญชี ' + esc(p.name) + '</div>' : '') +
+      '<div class="timer" id="payTimer"></div>' +
+      '<ol class="steps"><li>แคปหน้าจอนี้ หรือกดค้างที่ QR แล้วบันทึกรูป</li><li>เปิดแอปธนาคาร เลือก สแกน แล้วเลือกรูปจากอัลบั้ม</li><li>' + esc(p.slip ? 'จ่ายแล้วกลับมาแนบสลิป ระบบตรวจให้ทันที' : 'จ่ายแล้วกลับมากด โอนแล้ว ร้านจะตรวจยอดให้') + '</li></ol>' +
+      (p.slip ? '<label class="upload">แนบสลิป<input type="file" accept="image/*" id="slipIn"></label>' : '') +
+      '<button class="' + (p.slip ? 'secondary' : 'primary') + '" type="button" id="claimBtn">' + (p.slip ? 'อ่านสลิปไม่ได้ ให้ร้านตรวจเอง' : 'โอนแล้ว') + '</button>' +
+      '<div class="err" id="payErr" role="alert"></div>' +
+      '<button class="ghost" type="button" id="cancelPay">ยกเลิกออเดอร์นี้</button></div>';
+    const timer = () => {
+      const el = $('payTimer');
+      if (!el || current !== o) return clearInterval(showPay.t);
+      const left = p.expiresAt - nowMs();
+      el.textContent = left > 0 ? 'จ่ายภายใน ' + Math.floor(left / 60000) + ':' + String(Math.floor(left / 1000) % 60).padStart(2, '0') + ' นาที' : 'หมดเวลาชำระ';
+      el.classList.toggle('low', left < 2 * MIN);
+    };
+    clearInterval(showPay.t); showPay.t = setInterval(timer, 1000); timer();
+    if (p.slip) $('slipIn').onchange = (e) => readSlip(o, e.target.files && e.target.files[0]);
+    $('claimBtn').onclick = () => claim(o);
+    $('cancelPay').onclick = async (e) => {
+      const b = e.currentTarget;
+      if (!b.dataset.armed) { b.dataset.armed = '1'; b.textContent = 'กดอีกครั้งเพื่อยกเลิก'; return; }
+      try { if (!DEMO) await api({ action: 'cancel', orderId: o.orderId }); } catch (x) {}
+      await reloadHome();
+    };
+  }
+
+  async function reloadHome() {
+    current = null;
+    if (!DEMO) { try { await loadMenu(); } catch (e) {} loadMe(); }
+    renderMenu();
+  }
+
+  /** อ่าน QR บนรูปสลิปในเครื่อง (ไม่ส่งรูปออกไปไหน ส่งแค่ข้อความใน QR) */
+  async function decodeSlip(file) {
+    const url = URL.createObjectURL(file);
+    try {
+      const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = url; });
+      const c = document.createElement('canvas');
+      const ctx = c.getContext('2d', { willReadFrequently: true });
+      const tryArea = (sx, sy, sw, sh, max) => {
+        const k = Math.min(1, max / Math.max(sw, sh));
+        c.width = Math.round(sw * k); c.height = Math.round(sh * k);
+        ctx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+        const d = ctx.getImageData(0, 0, c.width, c.height);
+        const r = jsQR(d.data, d.width, d.height, { inversionAttempts: 'attemptBoth' });
+        return r && r.data;
+      };
+      const W = img.naturalWidth, H = img.naturalHeight;
+      return tryArea(0, 0, W, H, 1400) || tryArea(0, H / 2, W, H / 2, 1400) || tryArea(W / 2, H / 2, W / 2, H / 2, 1200) ||
+        tryArea(0, H * 0.4, W, H * 0.6, 2000) || null;
+    } finally { URL.revokeObjectURL(url); }
+  }
+
+  async function readSlip(o, file) {
+    if (!file) return;
+    $('payErr').textContent = 'กำลังอ่านสลิป';
+    let data = null;
+    try { data = await decodeSlip(file); } catch (e) {}
+    if (!data) { $('payErr').textContent = 'อ่าน QR บนสลิปไม่ได้ ลองแนบรูปสลิปจากแอปธนาคารโดยตรง (ไม่ครอปตรง QR) หรือกด ให้ร้านตรวจเอง'; return; }
+    $('payErr').textContent = 'กำลังตรวจสลิปกับธนาคาร';
+    try {
+      const r = DEMO ? Object.assign({}, o, { status: 'รอทำ', payState: 'สลิปผ่าน' }) : await api({ action: 'pay', orderId: o.orderId, payload: data });
+      if (r.status === 'รอชำระ') return showChecking(r);
+      finish(r);
+    } catch (e) {
+      $('payErr').textContent = e && e.message ? e.message : String(e);
+    }
+  }
+
+  async function claim(o) {
+    try {
+      const r = DEMO ? Object.assign({}, o, { status: 'รอชำระ', payState: 'แจ้งโอนแล้ว' }) : await api({ action: 'paid', orderId: o.orderId });
+      if (r.status === 'รอชำระ') return showChecking(r, true);
+      finish(r);
+    } catch (e) { $('payErr').textContent = e && e.message ? e.message : String(e); }
+  }
+
+  function showChecking(o, announce) {
+    current = o;
+    $('bar').hidden = true;
+    $('app').innerHTML = '<div class="wrap"><h1>' + esc(shop) + '</h1><div class="checking" role="status"><div style="font-weight:600">ร้านกำลังตรวจยอดเงิน</div>' +
+      '<div class="done" style="background:transparent;padding:0;margin:0;color:inherit"><div class="row"><div><div class="k">คิวของคุณ</div><div class="v">' + esc(o.queue) + '</div></div>' +
+      '<div><div class="k">ยอด</div><div class="v">' + baht(o.total) + '</div></div></div></div>' +
+      '<p style="margin:12px 0 0;font-size:14px">ร้านยืนยันแล้วจะส่งเลขคิวและเวลารับเข้าแชทให้ ปิดหน้านี้ได้เลย</p></div>' +
+      '<button class="ghost" type="button" onclick="location.reload()">กลับหน้าเมนู</button></div>';
+    if (announce && !DEMO && liff.isInClient()) liff.sendMessages([{ type: 'text', text: 'แจ้งโอนแล้ว #' + o.orderId }]).catch(() => {});
+    clearInterval(showChecking.t);
+    let n = 0;
+    showChecking.t = setInterval(async () => {
+      if (current !== o || ++n > 24 || DEMO) return clearInterval(showChecking.t);
+      try { const r = await api({ action: 'status', orderId: o.orderId }); if (r.status !== 'รอชำระ') { clearInterval(showChecking.t); r.status === 'ยกเลิก' ? reloadHome() : showDone(r); } } catch (e) {}
+    }, 5000);
+  }
+
+  /** จ่ายแล้ว (หรือไม่ต้องจ่าย): แสดงการ์ดคิว ส่งข้อความเข้าแชทให้บอทตอบการ์ด แล้วปิดหน้า */
+  async function finish(r) {
+    showDone(r);
+    if (!DEMO && liff.isInClient()) {
+      try { await liff.sendMessages([{ type: 'text', text: 'สั่งแล้ว #' + r.orderId }]); } catch (e) {}
+      setTimeout(() => liff.closeWindow(), 2200);
+    }
+  }
+
   function showDone(r) {
-    const head = { clear: 'ช่วงเวลานี้คิวโล่ง ได้ตามนัดแน่นอน', busy: 'ช่วงเวลานี้คนเยอะปานกลาง', storm: 'ช่วงเวลานี้คิวแน่น อาจช้ากว่านัดเล็กน้อย' }[r.level] || 'รับออเดอร์แล้ว';
-    cart = [];
+    current = r;
+    const head = r.status === 'เสร็จแล้ว' ? 'พร้อมรับแล้ว' + (r.slot !== '' && r.slot !== undefined ? ' หยิบที่ช่อง ' + r.slot : '')
+      : { clear: 'ช่วงเวลานี้คิวโล่ง ได้ตามนัดแน่นอน', busy: 'ช่วงเวลานี้คนเยอะปานกลาง', storm: 'ช่วงเวลานี้คิวแน่น อาจช้ากว่านัดเล็กน้อย' }[r.level] || 'รับออเดอร์แล้ว';
     $('bar').hidden = true;
     $('app').innerHTML = '<div class="wrap"><h1>' + esc(shop) + '</h1>' +
-      '<div class="done ' + esc(r.level) + '" role="status"><div style="font-weight:600">' + head + '</div>' +
+      '<div class="done ' + esc(r.level) + '" role="status"><div style="font-weight:600">' + esc(head) + '</div>' +
       '<div class="row"><div><div class="k">คิวของคุณ</div><div class="v">' + esc(r.queue) + '</div></div>' +
-      '<div><div class="k">พร้อมรับ</div><div class="v">' + esc(r.pickup) + '</div></div>' +
-      '<div><div class="k">ก่อนหน้า</div><div class="v">' + r.ordersAhead + ' คิว</div></div></div>' +
-      '<p style="margin:12px 0 0;font-size:14px">ยอด ' + baht(r.total) + ' · ระบบส่งรายละเอียดเข้าแชทให้แล้ว</p>' +
+      '<div><div class="k">' + (r.day === 1 ? 'รับพรุ่งนี้' : 'พร้อมรับ') + '</div><div class="v">' + esc(String(r.pickup).replace('พรุ่งนี้ ', '')) + '</div></div>' +
+      '<div><div class="k">ก่อนหน้า</div><div class="v">' + (r.ordersAhead || 0) + ' คิว</div></div></div>' +
+      '<p style="margin:12px 0 0;font-size:14px">ยอด ' + baht(r.total) + (r.payState === 'สลิปผ่าน' ? ' · จ่ายแล้ว' : '') + ' · ระบบส่งรายละเอียดเข้าแชทให้แล้ว</p>' +
       (r.adjusted ? '<p style="margin:8px 0 0;font-size:14px">เวลาที่เลือกเร็วกว่าที่ทำทัน ร้านเลื่อนให้เป็น ' + esc(r.pickup) + ' น.</p>' : '') + '</div>' +
       (r.place || r.map ? '<div class="place"><div class="t"><small>มารับที่</small>' + esc(r.place || 'ดูตำแหน่งในแผนที่') + '</div>' +
         (r.map ? '<a href="' + esc(r.map) + '" target="_blank" rel="noopener" data-map>แผนที่</a>' : '') + '</div>' : '') +
-      '<button class="ghost" type="button" onclick="location.reload()">สั่งเพิ่ม</button></div>';
+      '<button class="ghost" type="button" onclick="location.href=location.pathname">สั่งเพิ่ม</button></div>';
+  }
+
+  function demoPay() {
+    showPay({ orderId: '20261010-036', queue: 'A-036', status: 'รอชำระ', day: 0, pickup: hm(Date.now() + 12 * MIN), total: 105, level: 'busy',
+      pay: { payload: DEMO_PAYLOAD, name: payCfg.name, amount: 105, expiresAt: Date.now() + 8 * MIN + 32000, slip: true } });
   }
 
   start();
