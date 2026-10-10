@@ -180,7 +180,8 @@
     subtitle: 'สั่งล่วงหน้า เลือกเวลามารับ แล้วแวะมาหยิบได้เลย',
     sweet: 'หวานปกติ, หวาน 50%, หวาน 25%, ไม่หวาน',
     ice: 'ใส่น้ำแข็งปกติ, แยกน้ำแข็ง',
-    market: 'เมนูที่ขายช้าลดราคาทุกต้นชั่วโมง ไม่แพงกว่าราคาปกติ',
+    market: 'เมนูที่ขายช้าลดราคาทุก {min} นาที ไม่แพงกว่าราคาปกติ',
+    marketFree: 'ขายดีราคาขึ้น ขายช้าราคาลง ขยับทุก {min} นาที',
     payNote: 'มารับที่ {place} · ระบบจะแจ้งเลขคิวในแชท และแจ้งอีกครั้งเมื่อเครื่องดื่มพร้อม',
     closedNote: 'ตอนนี้ยังสั่งไม่ได้ ดูเมนูไว้ก่อนได้นะ',
     confirm: 'ยืนยันสั่ง',
@@ -236,7 +237,7 @@
     const H = { M01: [45,44,43,43,42], M02: [50,50,49,50,50], M03: [50,49,48,49,50], M04: [55,55,54,53,54], M06: [60,59,58,57,56], M08: [45,45,44,45,45], M09: [55,54,53,52,52] };
     menu = [['M01','อเมริกาโน่ร้อน','กาแฟร้อน',45],['M02','ลาเต้ร้อน','กาแฟร้อน',50],['M03','อเมริกาโน่เย็น','กาแฟเย็น',50],['M04','ลาเต้เย็น','กาแฟเย็น',55],['M06','มอคค่าเย็น','กาแฟเย็น',60],['M08','ชาไทยเย็น','ไม่ใช่กาแฟ',45],['M09','ชาเขียวเย็น','ไม่ใช่กาแฟ',55]]
       .map(([id,name,cat,base]) => { const h = H[id]; return { id, name, cat, base, price: h[h.length - 1], chg: h[h.length - 1] - h[h.length - 2], hist: h }; });
-    market = { on: true, live: true, cap: true, nextAt: Math.ceil((t + 1) / (60 * MIN)) * 60 * MIN };
+    market = { on: true, live: true, cap: false, every: 30, nextAt: Math.ceil((t + 1) / (30 * MIN)) * 30 * MIN };
     payCfg = { on: true, name: 'สมชาย ใจดี', timeout: 10 };
     stampGoal = 10;
     me = { stamps: { goal: 10, have: Q.has('free') ? 11 : 7, canRedeem: Q.has('free') }, orders: [] };
@@ -313,7 +314,7 @@
     if (!market.on) return '';
     const ups = menu.filter((m) => m.chg > 0).sort((a, b) => b.chg - a.chg);
     const downs = menu.filter((m) => m.chg < 0).sort((a, b) => a.chg - b.chg);
-    return '<div class="mkt"><div class="t"><b>ราคาตลาด</b>' + esc(market.cap ? T('market') : 'ขายดีราคาขึ้น ขายช้าราคาลง ขยับทุกต้นชั่วโมง') + '</div>' +
+    return '<div class="mkt"><div class="t"><b>ราคาตลาด</b>' + esc(T(market.cap ? 'market' : 'marketFree', { min: market.every || 60 }).replace('ทุก 60 นาที', 'ทุกต้นชั่วโมง')) + '</div>' +
       '<div class="cd">' + (market.live ? 'ราคาถัดไปใน<strong id="cd">--:--</strong>' : 'ตลาดปิด<strong>ราคาล่าสุด</strong>') + '</div></div>' +
       (ups.length || downs.length ? '<div class="movers">' +
         (market.cap ? (function () { const d = menu.filter((m) => m.price < m.base).sort((a, b) => (b.base - b.price) - (a.base - a.price))[0];
@@ -425,7 +426,7 @@
     const m = menu.find((x) => x.id === item.dataset.id);
     pick = { m, sweet: opts('sweet')[0] || '', ice: opts('ice')[0] || '', qty: 1 };
     $('itemName').textContent = m.name;
-    $('itemPrice').innerHTML = baht(m.price) + ' ต่อแก้ว ' + (market.on && m.chg ? chgTag(m.chg) + ' <span style="font-size:13px">จากชั่วโมงก่อน</span>' : '') +
+    $('itemPrice').innerHTML = baht(m.price) + ' ต่อแก้ว ' + (market.on && m.chg ? chgTag(m.chg) + ' <span style="font-size:13px">จากรอบก่อน</span>' : '') +
       (market.on && market.cap && m.price < m.base ? '<br><span class="chg up" style="font-size:14px">ถูกกว่าราคาปกติ ' + baht(m.base - m.price) + '</span>' : '');
     $('itemChart').innerHTML = market.on && m.hist && m.hist.length > 1
       ? '<div class="bigchart">' + spark(m.hist, 300, 64, true).replace('class="spark"', 'class="spark" style="width:100%;height:64px" preserveAspectRatio="none"') +
